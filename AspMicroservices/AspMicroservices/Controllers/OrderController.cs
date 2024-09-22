@@ -10,10 +10,11 @@ namespace OrderService.Controllers
     public class OrderController : ControllerBase
     {
         private readonly IHttpClientFactory _httpClientFactory;
-        private readonly string _userServiceUrl = "https://localhost:7005/api/user";
-        private readonly string _productServiceUrl = "https://localhost:7214/api/product";
+        private readonly string _userServiceUrl = "https://localhost:7290/api/user";
+        private readonly string _productServiceUrl = "https://localhost:7299/api/product";
 
         private static readonly List<Order> Orders = new List<Order>();
+        private static int _lastOrderId = 0;
         public OrderController(IHttpClientFactory httpClientFactory)
         {
             _httpClientFactory = httpClientFactory;
@@ -30,6 +31,9 @@ namespace OrderService.Controllers
             if (product == null)
                 return BadRequest("Product not found");
 
+            _lastOrderId++;
+            order.Id = _lastOrderId;
+
             Orders.Add(order);
             return Ok(order);
         }
@@ -43,6 +47,21 @@ namespace OrderService.Controllers
 
             var json = await response.Content.ReadAsStringAsync();
             return JsonSerializer.Deserialize<User>(json);
+        }
+
+        [HttpGet("{id}")]
+        public ActionResult<User> GetOrder(int id)
+        {
+            var user = Orders.FirstOrDefault(u => u.Id == id);
+            if (user == null)
+                return NotFound();
+            return Ok(user);
+        }
+
+        [HttpGet]
+        public ActionResult<IEnumerable<User>> GetOrders()
+        {
+            return Ok(Orders);
         }
 
         private async Task<Product?> GetProductById(int productId)
