@@ -14,7 +14,7 @@ namespace OrderService.Controllers
         private readonly string _productServiceUrl = "https://localhost:7299/api/product";
 
         private static readonly List<Order> Orders = new List<Order>();
-        private static int _lastOrderId = 0;
+        private static int _lastOrderId = Orders.Any() ? Orders.Max(n => n.Id) : 0;
         public OrderController(IHttpClientFactory httpClientFactory)
         {
             _httpClientFactory = httpClientFactory;
