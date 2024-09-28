@@ -3,13 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.11.35303.130
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrderService", "AspMicroservices\OrderService.csproj", "{3CFA5FA8-FBD1-4EB4-BE88-443E07D55C24}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OrderServiceProject", "AspMicroservices\OrderServiceProject.csproj", "{3CFA5FA8-FBD1-4EB4-BE88-443E07D55C24}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UserService", "UserService\UserService.csproj", "{48BF0ABA-06CB-4DE5-9DC3-C798C973C823}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UserServiceProject", "UserService\UserServiceProject.csproj", "{48BF0ABA-06CB-4DE5-9DC3-C798C973C823}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProductService", "ProductService\ProductService.csproj", "{53EB9ACD-476E-46D6-9682-5A9E238A4165}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ProductServiceProject", "ProductService\ProductServiceProject.csproj", "{53EB9ACD-476E-46D6-9682-5A9E238A4165}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharedModels", "SharedModels\SharedModels.csproj", "{4A6C4C86-A0BD-46D0-AF68-34EE4A2829D3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SharedModels", "SharedModels\SharedModels.csproj", "{4A6C4C86-A0BD-46D0-AF68-34EE4A2829D3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

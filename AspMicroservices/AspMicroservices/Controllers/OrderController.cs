@@ -1,7 +1,8 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using OrderService.Interfaces;
+using ProductService.Interfaces;
 using SharedModels;
-using System.Text.Json;
+using UserService.Interfaces;
 
 namespace OrderService.Controllers
 {
@@ -9,70 +10,74 @@ namespace OrderService.Controllers
     [ApiController]
     public class OrderController : ControllerBase
     {
-        private readonly IHttpClientFactory _httpClientFactory;
-        private readonly string _userServiceUrl = "https://localhost:7290/api/user";
-        private readonly string _productServiceUrl = "https://localhost:7299/api/product";
+        private readonly IOrderService _orderService;
+        private readonly IUserService _userService;
+        private readonly IProductService _productService;
 
-        private static readonly List<Order> Orders = new List<Order>();
-        private static int _lastOrderId = Orders.Any() ? Orders.Max(n => n.Id) : 0;
-        public OrderController(IHttpClientFactory httpClientFactory)
+        public OrderController(IOrderService orderService, IUserService userService, IProductService productService)
         {
-            _httpClientFactory = httpClientFactory;
+            _orderService = orderService;
+            _userService = userService;
+            _productService = productService;
         }
 
         [HttpPost]
         public async Task<ActionResult<Order>> CreateOrder([FromBody] Order order)
         {
-            var user = await GetUserById(order.UserId);
+            var user = await _userService.GetUserById(order.UserId);
             if (user == null)
                 return BadRequest("User not found");
 
-            var product = await GetProductById(order.ProductId);
+            var product = await _productService.GetProductById(order.ProductId);
             if (product == null)
                 return BadRequest("Product not found");
 
-            _lastOrderId++;
-            order.Id = _lastOrderId;
-
-            Orders.Add(order);
-            return Ok(order);
-        }
-
-        private async Task<User?> GetUserById(int userId)
-        {
-            var client = _httpClientFactory.CreateClient();
-            var response = await client.GetAsync($"{_userServiceUrl}/{userId}");
-            if (!response.IsSuccessStatusCode)
-                return null;
-
-            var json = await response.Content.ReadAsStringAsync();
-            return JsonSerializer.Deserialize<User>(json);
+            var createdOrder = await _orderService.CreateOrder(order);
+            return Ok(createdOrder);
         }
 
         [HttpGet("{id}")]
-        public ActionResult<User> GetOrder(int id)
+        public async Task<ActionResult<Order>> GetOrder(int id)
         {
-            var user = Orders.FirstOrDefault(u => u.Id == id);
-            if (user == null)
+            var order = await _orderService.GetOrder(id);
+            if (order == null)
                 return NotFound();
-            return Ok(user);
+            return Ok(order);
         }
 
         [HttpGet]
-        public ActionResult<IEnumerable<User>> GetOrders()
+        public async Task<ActionResult<IEnumerable<Order>>> GetOrders()
         {
-            return Ok(Orders);
+            var orders = await _orderService.GetOrders();
+            return Ok(orders);
         }
 
-        private async Task<Product?> GetProductById(int productId)
+        [HttpPut("{id}")]
+        public async Task<ActionResult<Order>> UpdateOrder(int id, [FromBody] Order updatedOrder)
         {
-            var client = _httpClientFactory.CreateClient();
-            var response = await client.GetAsync($"{_productServiceUrl}/{productId}");
-            if (!response.IsSuccessStatusCode)
-                return null;
+            var user = await _userService.GetUserById(updatedOrder.UserId);
+            if (user == null)
+                return BadRequest("User not found");
 
-            var json = await response.Content.ReadAsStringAsync();
-            return JsonSerializer.Deserialize<Product>(json);
+            var product = await _productService.GetProductById(updatedOrder.ProductId);
+            if (product == null)
+                return BadRequest("Product not found");
+
+            var order = await _orderService.UpdateOrder(id, updatedOrder);
+            if (order == null)
+                return NotFound("Order not found");
+
+            return Ok(order);
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<ActionResult> DeleteOrder(int id)
+        {
+            var result = await _orderService.DeleteOrder(id);
+            if (!result)
+                return NotFound("Order not found");
+
+            return NoContent();
         }
     }
 }
