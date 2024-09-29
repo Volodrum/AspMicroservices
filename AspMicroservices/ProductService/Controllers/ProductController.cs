@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using SharedModels;
 
 namespace ProductService.Controllers
@@ -26,6 +27,7 @@ namespace ProductService.Controllers
         }
 
         [HttpGet]
+        [Authorize]
         public ActionResult<IEnumerable<Product>> GetProducts()
         {
             return Ok(Products);

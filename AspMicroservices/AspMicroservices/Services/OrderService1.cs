@@ -1,50 +1,40 @@
 ﻿using OrderService.Interfaces;
 using SharedModels;
+using System.Text.Json;
 
 namespace OrderService.Services
 {
     public class OrderService1 : IOrderService
     {
-        private static readonly List<Order> Orders = new List<Order>();
-        private static int _lastOrderId = Orders.Any() ? Orders.Max(n => n.Id) : 0;
+        private readonly IHttpClientFactory _httpClientFactory;
+        private readonly string _userServiceUrl = "https://localhost:7290/api/user";
+        private readonly string _productServiceUrl = "https://localhost:7299/api/product";
 
-        public async Task<Order?> CreateOrder(Order order)
+        public OrderService1(IHttpClientFactory httpClientFactory)
         {
-            _lastOrderId++;
-            order.Id = _lastOrderId;
-            Orders.Add(order);
-            return order;
+            _httpClientFactory = httpClientFactory;
         }
 
-        public async Task<Order?> GetOrder(int id)
+        public async Task<User?> GetUserById(int userId)
         {
-            return Orders.FirstOrDefault(o => o.Id == id);
+            var client = _httpClientFactory.CreateClient();
+            var response = await client.GetAsync($"{_userServiceUrl}/{userId}");
+            if (!response.IsSuccessStatusCode)
+                return null;
+
+            var json = await response.Content.ReadAsStringAsync();
+            return JsonSerializer.Deserialize<User>(json);
         }
 
-        public async Task<IEnumerable<Order>> GetOrders()
+        public async Task<Product?> GetProductById(int productId)
         {
-            return Orders;
-        }
+            var client = _httpClientFactory.CreateClient();
+            var response = await client.GetAsync($"{_productServiceUrl}/{productId}");
+            if (!response.IsSuccessStatusCode)
+                return null;
 
-        public async Task<Order?> UpdateOrder(int id, Order updatedOrder)
-        {
-            var existingOrder = Orders.FirstOrDefault(o => o.Id == id);
-            if (existingOrder == null) return null;
-
-            existingOrder.UserId = updatedOrder.UserId;
-            existingOrder.ProductId = updatedOrder.ProductId;
-            existingOrder.Quantity = updatedOrder.Quantity;
-
-            return existingOrder;
-        }
-
-        public async Task<bool> DeleteOrder(int id)
-        {
-            var order = Orders.FirstOrDefault(o => o.Id == id);
-            if (order == null) return false;
-
-            Orders.Remove(order);
-            return true;
+            var json = await response.Content.ReadAsStringAsync();
+            return JsonSerializer.Deserialize<Product>(json);
         }
     }
 }
