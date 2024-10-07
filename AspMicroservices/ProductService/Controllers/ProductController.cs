@@ -67,5 +67,12 @@ namespace ProductService.Controllers
             Products.Remove(product);
             return NoContent();
         }
+
+        [Authorize]
+        [HttpGet("secure-data")]
+        public IActionResult GetSecuredData()
+        {
+            return Ok("This data is protected and only accessable with a valid JWT token.");
+        }
     }
 }

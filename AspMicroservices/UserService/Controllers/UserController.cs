@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using SharedModels;
 
 namespace UserService.Controllers
@@ -63,6 +64,13 @@ namespace UserService.Controllers
 
             Users.Remove(user);
             return NoContent();
+        }
+
+        [Authorize]
+        [HttpGet("secure-data")]
+        public IActionResult GetSecuredData()
+        {
+            return Ok("This data is protected and only accessable with a valid JWT token.");
         }
     }
 }
